@@ -124,4 +124,4 @@ RUN chmod -R a+rX /app/src
 
 # Add rootfs
 COPY rootfs/ /
-RUN find . -type f \( -name "*.sh" -o -name "run" -o -name "finish" \) -print -exec chmod +x {} \;
+RUN find /etc -type f \( -name "*.sh" -o -name "run" -o -name "finish" \) -print -exec chmod +x {} \;

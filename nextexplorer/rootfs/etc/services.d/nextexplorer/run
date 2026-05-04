@@ -16,7 +16,7 @@ echo "Current VOLUME_ROOT: $VOLUME_ROOT"
 
 export LOG_LEVEL=$(jq --raw-output '.log_level // "info"' "$OPTIONS_FILE")
 export PUBLIC_URL=$(jq --raw-output '.public_url // ""' "$OPTIONS_FILE")
-export AUTH_MODE=$(jq --raw-output '.public_url // "local"' "$OPTIONS_FILE")
+export AUTH_MODE=$(jq --raw-output '.auth_mode // "local"' "$OPTIONS_FILE")
 
 
 echo "--- Runtime Configuration ---"

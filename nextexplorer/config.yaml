@@ -1,0 +1,39 @@
+# https://developers.home-assistant.io/docs/add-ons/configuration#add-on-config
+name: Next Explorer
+version: "1.0"
+slug: nextexplorer
+description: Next Explorer
+url: "https://github.com/bob-tm/ha-apps/next-explorer/"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+init: false
+startup: application
+ports:
+  3000/tcp: 3000
+map:
+  - addon_config:rw
+  - all_addon_configs:rw
+  - homeassistant_config:rw
+  - ssl:rw
+  - media:rw
+  - backup:rw
+  - addons:rw
+  - share:rw 
+apparmor: false
+privileged:
+  - SYS_ADMIN
+options:
+  log_level: info 
+  public_url: ""
+  root_volumes: 
+    - share
+    - media
+    - backup
+schema:
+  root_volumes: 
+    - str
+  log_level: list(trace|debug|info|warn|error)
+  public_url: str?

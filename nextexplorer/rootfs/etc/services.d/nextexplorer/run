@@ -1,0 +1,27 @@
+#!/usr/bin/with-contenv bashio
+
+echo "Starting Next Explorer server..."
+
+# convert HA Addon Config to ENV vars
+#export ROOT_VOLUMES=$(jq --raw-output '.root_volumes | join(",")' /data/options.json)
+
+OPTIONS_FILE="/data/options.json"
+
+if ! jq -e '.root_volumes | type == "array" and length > 0' "$OPTIONS_FILE" > /dev/null; then
+    echo "Root volumes array is empty or missing. Switching to /"
+    export VOLUME_ROOT="/"
+fi
+
+echo "Current VOLUME_ROOT: $VOLUME_ROOT"
+
+export LOG_LEVEL=$(jq --raw-output '.log_level // "info"' "$OPTIONS_FILE")
+export PUBLIC_URL=$(jq --raw-output '.public_url // ""' "$OPTIONS_FILE")
+
+echo "--- Runtime Configuration ---"
+echo "VOLUME_ROOT: $VOLUME_ROOT"
+echo "LOG_LEVEL:   $LOG_LEVEL"
+echo "PUBLIC_URL:  $PUBLIC_URL"
+echo "----------------------------"
+
+cd /app
+exec node /app/src/server.js

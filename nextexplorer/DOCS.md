@@ -23,6 +23,7 @@ by default enabled share,media,backup
 # public_url
 Setup your public url to enable public file sharing
 
-#auth_mode
+# auth_mode
 you can disable it for local use only. If you have public access to your ha use both or local!
-see https://explorer.nxz.ai/configuration/environment.html for details
+
+See https://explorer.nxz.ai/configuration/environment.html for details

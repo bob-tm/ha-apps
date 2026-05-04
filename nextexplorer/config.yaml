@@ -3,7 +3,7 @@ name: Next Explorer
 version: "1.0"
 slug: nextexplorer
 description: Next Explorer
-url: "https://github.com/bob-tm/ha-apps/next-explorer/"
+url: "https://github.com/bob-tm/ha-apps/nextexplorer/"
 arch:
   - armhf
   - armv7

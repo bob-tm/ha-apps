@@ -1,6 +1,8 @@
-ARG BUILD_FROM
+ARG BUILD_ARCH
+ARG BUILD_FROM=ghcr.io/home-assistant/${BUILD_ARCH}-base:latest
 
-FROM $BUILD_FROM AS fetch_source
+
+FROM $BUILD_FROM AS fetch_source  
 RUN apk add --no-cache git
 WORKDIR /ne_src
 RUN git clone https://github.com/nxzai/NextExplorer .
@@ -10,6 +12,7 @@ FROM $BUILD_FROM AS base
 WORKDIR /app
 RUN apk add --no-cache nodejs npm
 RUN apk add --no-cache bash jq
+
 
 # ---------------------------------------------------------------------------
 # Stage 1: Backend production dependencies
@@ -30,6 +33,8 @@ COPY --from=fetch_source /ne_src/frontend/package.json frontend/package.json
 COPY --from=fetch_source /ne_src/docs/package.json docs/package.json
 RUN npm ci --omit=dev --workspace backend && npm cache clean --force
 
+
+
 # ---------------------------------------------------------------------------
 # Stage 2: Frontend build (dev dependencies, discarded after build)
 # ---------------------------------------------------------------------------
@@ -45,38 +50,17 @@ RUN npm ci --workspace frontend
 COPY --from=fetch_source /ne_src/frontend/ ./frontend/
 RUN npm run -w frontend build -- --sourcemap false
 
+
+
 # ---------------------------------------------------------------------------
 # Stage 3: Final runtime image — no compilers, no build tools
 # ---------------------------------------------------------------------------
 FROM base AS runtime
+  
 ENV NODE_ENV=production
 ENV CONFIG_DIR=/config
 ENV CACHE_DIR=/cache
 ENV VOLUME_ROOT=/storage
-
-# Create the baseline app user; UID/GID may be mutated at runtime via entrypoint.sh.
-# Alpine uses busybox addgroup/adduser instead of Debian's groupadd/useradd.
-#RUN addgroup -S appuser && \
-#    adduser -S -G appuser -s /bin/bash appuser
-
-# Runtime packages only.
-#
-# Core:
-#   ffmpeg          – video thumbnail extraction & HW-accel transcoding
-#   gosu            – UID/GID remapping in entrypoint
-#   ripgrep         – fast file-content search
-#   imagemagick     – HEIC → PNG thumbnail conversion
-#   openssh-client  – optional SSH remote access
-#   unzip           – demo mode sample extraction (downloadSamples.js)
-#   bash            – entrypoint.sh is a bash script
-#   shadow          – provides usermod/groupmod for UID/GID remapping
-#   perl            – required by exiftool-vendored for RAW image previews
-#   curl            – For terminal users 
-#
-# VA-API hardware-accelerated video decode (Intel Quick Sync / AMD):
-#   libva           – core VA-API runtime (includes libva-drm)
-#   mesa-va-gallium – Mesa VA-API GPU drivers
-
 
 RUN apk add --no-cache \
       ffmpeg \
@@ -92,6 +76,8 @@ RUN apk add --no-cache \
       mesa-va-gallium \
       curl \
   && rm -rf /tmp/* /var/cache/apk/*
+
+RUN apk add --no-cache autofs cifs-utils
 
 WORKDIR /app
 

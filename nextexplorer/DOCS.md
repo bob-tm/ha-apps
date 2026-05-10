@@ -15,6 +15,9 @@ this folders can be added as Root Volumes:
   - addons
   - root
 
+## SAMBA Shares
+Cifs volumes can be mounted directly inside addon.
+
 share will be added as shared, because share is reserved name for Next Explorer
 root - it's addon root, can be useful for dev
 

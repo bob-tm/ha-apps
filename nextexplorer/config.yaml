@@ -1,11 +1,9 @@
 name: Next Explorer
-version: "1.0.1"
+version: "1.1.0"
 slug: nextexplorer
 description: Next Explorer 
 url: "https://github.com/bob-tm/ha-apps/tree/main/nextexplorer"
 arch:
-  - armhf
-  - armv7
   - aarch64
   - amd64
 init: false
@@ -25,16 +23,26 @@ apparmor: false
 privileged:
   - SYS_ADMIN
 options:
-  log_level: info 
   public_url: ""
   root_volumes: 
     - share
     - media
     - backup
   auth_mode: "both"
+  mounts:
+    - server: "//192.168.1.100/share1"
+      name: "nas_media"
+      username: "user"
+      password: "password"
+  log_level: info 
 schema:
   root_volumes: 
     - str
   log_level: list(trace|debug|info|warn|error)
   public_url: str?
   auth_mode: list(both|local|oidc|disabled)
+  mounts:
+    - server: str
+      name: str
+      username: str
+      password: str

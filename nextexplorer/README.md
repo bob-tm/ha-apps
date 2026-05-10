@@ -1,5 +1,6 @@
 ## About
 This App uses https://github.com/nxzai/NextExplorer
+Added feature to mount CIFS folders directly to App
 
 ## Install
 - Add repository https://github.com/bob-tm/ha-apps to app(addon) repositories

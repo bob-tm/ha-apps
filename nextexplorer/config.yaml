@@ -1,5 +1,5 @@
 name: Next Explorer
-version: "1.1.0"
+version: "1.1.1"
 slug: nextexplorer
 description: Next Explorer 
 url: "https://github.com/bob-tm/ha-apps/tree/main/nextexplorer"
@@ -35,6 +35,7 @@ options:
       username: "user"
       password: "password"
   log_level: info 
+  env_vars: []
 schema:
   root_volumes: 
     - str
@@ -46,3 +47,6 @@ schema:
       name: str
       username: str
       password: str
+  env_vars:
+    - name: str
+      value: str

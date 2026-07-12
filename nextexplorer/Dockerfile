@@ -1,8 +1,9 @@
 ARG BUILD_ARCH
 ARG BUILD_FROM=ghcr.io/home-assistant/${BUILD_ARCH}-base:latest
-LABEL io.hass.arch="amd64 aarch64"
 
 FROM $BUILD_FROM AS fetch_source  
+LABEL io.hass.arch="amd64 aarch64"
+
 RUN apk add --no-cache git
 WORKDIR /ne_src
 RUN git clone https://github.com/nxzai/NextExplorer .

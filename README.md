@@ -11,3 +11,4 @@ Press the button, or
 
 # Apps Addons
 - Next Explorer App for Home Assistant (https://github.com/nxzai/NextExplorer)
+- Devireg Mqtt Addon (former [https://github.com/nxzai/NextExplorer](https://github.com/bob-tm/ha-devireg-mqtt-addon))

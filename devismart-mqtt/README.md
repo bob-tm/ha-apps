@@ -19,4 +19,4 @@ Press the button, or
 
 Based on <https://github.com/igor-podpalchenko/ha-devi-mqtt>
 
-See https://github.com/bob-tm/ha-devireg-mqtt-addon/blob/main/devismart-mqtt/DOCS.md for details
+See [DOCS.md](https://github.com/bob-tm/ha-apps/blob/main/devismart-mqtt/DOCS.md) for details

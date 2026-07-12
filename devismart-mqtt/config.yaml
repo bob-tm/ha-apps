@@ -1,0 +1,28 @@
+# https://developers.home-assistant.io/docs/add-ons/configuration#add-on-config
+name: Devismart MQTT
+version: "0.5"
+slug: devismart-mqtt
+description: Devismart MQTT Addon
+url: "https://github.com/bob-tm/ha-apps/tree/main/devismart-mqtt/"
+image: "ghcr.io/bob-tm/devismart-mqtt"
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: application
+ports:
+  8000/tcp: 8000
+services:
+  - mqtt:need
+map:
+  - addon_config:rw
+options:
+  host: core-mosquitto
+  port: 1883
+  user: ""
+  password: ""
+schema:
+  host: str
+  port: port
+  user: str
+  password: password

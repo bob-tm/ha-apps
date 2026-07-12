@@ -9,7 +9,7 @@
 Press the button, or
 1. Navigate to addons page on your HA instalaiton
 2. Press three dots in the top right corner
-3. Add repository `https://github.com/bob-tm/ha-devireg-mqtt-addon` to addon repositories
+3. Add repository `https://github.com/bob-tm/ha-apps` to addon repositories
 4. Search for `Devismart MQTT`, HA need several minutes to update list of addons. 
 5. Install addon from addons page
 

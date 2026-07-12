@@ -1,10 +1,9 @@
+name: Build Add-ons
+
 on:
   push:
-    # Запуск при пуше в main (для тестов сборки) и при создании тегов v*
     branches:
       - main
-    tags:
-      - 'v*'
 
 jobs:
   init:
@@ -15,30 +14,46 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Этот шаг находит, в каких папках аддонов изменился код
       - name: Get changed add-ons
         id: changed
         uses: home-assistant/actions/helpers/find-addons@master
-        
+
   build:
     needs: init
     runs-on: ubuntu-latest
+    if: ${{ needs.init.outputs.changed_addons != '[]' }}
+    strategy:
+      matrix:
+        addon: ${{ fromJson(needs.init.outputs.changed_addons) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Нужно для проверки истории изменений файлов
 
-      # Логинимся в GitHub Registry ТОЛЬКО если это пуш тега (релиз)
+      # Проверяем, изменился ли config.yaml в папке конкретного аддона
+      - name: Check if config.yaml changed
+        id: check_config
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -q "${{ matrix.addon }}/config.yaml"; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Config file changed. Triggering full build."
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "Config file not changed. Running test build only."
+          fi
+
       - name: Login to GitHub Container Registry
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: steps.check_config.outputs.changed == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Тестовая сборка (без публикации в сеть)
+      # ТЕСТОВАЯ сборка (если config.yaml НЕ менялся)
       - name: Test Build Add-on
-        if: "!startsWith(github.ref, 'refs/tags/v')"
+        if: steps.check_config.outputs.changed != 'true'
         uses: home-assistant/builder@master
         with:
           args: |
@@ -47,9 +62,9 @@ jobs:
             --image ${{ matrix.addon }}-{arch} \
             --test
 
-      # Реальная сборка и публикация (только для тегов)
+      # РЕАЛЬНАЯ сборка и публикация (если config.yaml ИЗМЕНИЛСЯ)
       - name: Publish Add-on
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: steps.check_config.outputs.changed == 'true'
         uses: home-assistant/builder@master
         with:
           args: |

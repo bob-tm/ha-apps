@@ -1,6 +1,6 @@
 ARG BUILD_ARCH
 ARG BUILD_FROM=ghcr.io/home-assistant/${BUILD_ARCH}-base:latest
-
+LABEL io.hass.arch="amd64 aarch64"
 
 FROM $BUILD_FROM AS fetch_source  
 RUN apk add --no-cache git
@@ -56,7 +56,7 @@ RUN npm run -w frontend build -- --sourcemap false
 # Stage 3: Final runtime image — no compilers, no build tools
 # ---------------------------------------------------------------------------
 FROM base AS runtime
-  
+
 ENV NODE_ENV=production
 ENV CONFIG_DIR=/config
 ENV CACHE_DIR=/cache

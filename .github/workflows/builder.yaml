@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "**/config.yaml"     # Сценарий запустится ТОЛЬКО если изменился config.yaml любого аддона
+      - "**/config.json"
 
 jobs:
   init:
@@ -20,55 +23,14 @@ jobs:
 
   build:
     needs: init
-    runs-on: ubuntu-latest
     if: ${{ needs.init.outputs.changed_addons != '[]' }}
     strategy:
       matrix:
         addon: ${{ fromJson(needs.init.outputs.changed_addons) }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2 # Нужно для проверки истории изменений файлов
-
-      # Проверяем, изменился ли config.yaml в папке конкретного аддона
-      - name: Check if config.yaml changed
-        id: check_config
-        run: |
-          if git diff --name-only HEAD~1 HEAD | grep -q "${{ matrix.addon }}/config.yaml"; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Config file changed. Triggering full build."
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "Config file not changed. Running test build only."
-          fi
-
-      - name: Login to GitHub Container Registry
-        if: steps.check_config.outputs.changed == 'true'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # ТЕСТОВАЯ сборка (если config.yaml НЕ менялся)
-      - name: Test Build Add-on
-        if: steps.check_config.outputs.changed != 'true'
-        uses: home-assistant/builder@master
-        with:
-          args: |
-            --all \
-            --target ${{ matrix.addon }} \
-            --image ${{ matrix.addon }}-{arch} \
-            --test
-
-      # РЕАЛЬНАЯ сборка и публикация (если config.yaml ИЗМЕНИЛСЯ)
-      - name: Publish Add-on
-        if: steps.check_config.outputs.changed == 'true'
-        uses: home-assistant/builder@master
-        with:
-          args: |
-            --all \
-            --target ${{ matrix.addon }} \
-            --image ${{ matrix.addon }}-{arch} \
-            --registry ghcr.io/${{ github.repository_owner }}
+    uses: home-assistant/actions/.github/workflows/builder.yaml@master
+    with:
+      addon: ${{ matrix.addon }}
+      images: |
+        ghcr.io/${{ github.repository_owner }}/${{ matrix.addon }}-{arch}
+    secrets:
+      github_token: ${{ secrets.GITHUB_TOKEN }}

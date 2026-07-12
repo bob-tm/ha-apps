@@ -93,6 +93,7 @@ jobs:
             ${{ needs.prepare.outputs.url && format('io.hass.url={0}', needs.prepare.outputs.url) || '' }}
           push: ${{ inputs.publish }}
           version: ${{ needs.prepare.outputs.version }}
+          cosign: false
 
   manifest:
     name: Publish multi-arch manifest

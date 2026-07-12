@@ -1,0 +1,59 @@
+on:
+  push:
+    # Запуск при пуше в main (для тестов сборки) и при создании тегов v*
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_addons: ${{ steps.changed.outputs.addons }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Этот шаг находит, в каких папках аддонов изменился код
+      - name: Get changed add-ons
+        id: changed
+        uses: home-assistant/actions/helpers/find-addons@master
+        
+  build:
+    needs: init
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Логинимся в GitHub Registry ТОЛЬКО если это пуш тега (релиз)
+      - name: Login to GitHub Container Registry
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Тестовая сборка (без публикации в сеть)
+      - name: Test Build Add-on
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        uses: home-assistant/builder@master
+        with:
+          args: |
+            --all \
+            --target ${{ matrix.addon }} \
+            --image ${{ matrix.addon }}-{arch} \
+            --test
+
+      # Реальная сборка и публикация (только для тегов)
+      - name: Publish Add-on
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: home-assistant/builder@master
+        with:
+          args: |
+            --all \
+            --target ${{ matrix.addon }} \
+            --image ${{ matrix.addon }}-{arch} \
+            --registry ghcr.io/${{ github.repository_owner }}
